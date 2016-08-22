@@ -8,18 +8,18 @@
 
 std::vector<Node*> *makeGrid() {
     unsigned x(13), y(12);
-    int grid[y][x] = {{3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}};
+    int grid[y][x] = {{3, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
+                      {0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0},
+                      {0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0},
+                      {0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0},
+                      {0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0},
+                      {0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0},
+                      {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
+                      {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
+                      {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
+                      {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
+                      {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
+                      {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 2}};
 
     std::vector<Node*> *gridVector = new std::vector<Node*>();
     for(unsigned i=0; i < y; i++) {
@@ -177,8 +177,9 @@ void displayContainer(T &container, std::vector<sf::Text*> &texts, sf::Font &fon
     int x, y;
     sf::Text* costText;
     for(unsigned i=0; i < container.size(); i++) {
-        costs[3] = {container[i]->getGCost(), container[i]->getHCost(),
-                        container[i]->getGCost() + container[i]->getHCost()};
+        costs[0] = container[i]->getGCost();
+        costs[1] = container[i]->getHCost();
+        costs[2] = costs[0] + costs[1];
         x = container[i]->getX();
         y = container[i]->getY();
         for(unsigned j=0; j < 3; j++) {
@@ -260,7 +261,6 @@ int main() {
         for(sf::Text* text : texts)
             window.draw(*text);
         window.display();
-        usleep(500000);
     }
 
     for(sf::Text* text : texts)
