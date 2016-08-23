@@ -72,65 +72,27 @@ bool goToEnd(std::vector<Node*> *grid, std::deque<Node*> &opened, std::vector<No
     int x = currentNode->getX();
     int y = currentNode->getY();
     int h(13), v(12);
+
     std::vector<Node*> neighbours;
-    if(y%(v-1) != 0 && x%(h-1) != 0) {
-        neighbours.push_back((*grid)[(y-1)*h+x-1]);
-        neighbours.push_back((*grid)[(y-1)*h+x]);
-        neighbours.push_back((*grid)[(y-1)*h+x+1]);
-        neighbours.push_back((*grid)[(y)*h+x-1]);
-        neighbours.push_back((*grid)[(y)*h+x+1]);
-        neighbours.push_back((*grid)[(y+1)*h+x-1]);
+    if(y != v-1) {
         neighbours.push_back((*grid)[(y+1)*h+x]);
-        neighbours.push_back((*grid)[(y+1)*h+x+1]);
+        if(x != h-1)
+            neighbours.push_back((*grid)[(y+1)*h+x+1]);
+        if(x != 0)
+            neighbours.push_back((*grid)[(y+1)*h+x-1]);
     }
-    else if(y == (v-1) && x%(h-1) != 0) {
-        neighbours.push_back((*grid)[(y-1)*h+x-1]);
+    if(y != 0) {
         neighbours.push_back((*grid)[(y-1)*h+x]);
-        neighbours.push_back((*grid)[(y-1)*h+x+1]);
+        if(x != h-1)
+            neighbours.push_back((*grid)[(y-1)*h+x+1]);
+        if(x != 0)
+            neighbours.push_back((*grid)[(y-1)*h+x-1]);
+    }
+    if(x != 0)
         neighbours.push_back((*grid)[(y)*h+x-1]);
+    if(x != h-1)
         neighbours.push_back((*grid)[(y)*h+x+1]);
-    }
-    else if(y == 0 && x%(h-1) != 0) {
-        neighbours.push_back((*grid)[(y)*h+x-1]);
-        neighbours.push_back((*grid)[(y)*h+x+1]);
-        neighbours.push_back((*grid)[(y+1)*h+x-1]);
-        neighbours.push_back((*grid)[(y+1)*h+x]);
-        neighbours.push_back((*grid)[(y+1)*h+x+1]);
-    }
-    else if(x == 0 && y%(v-1) != 0) {
-        neighbours.push_back((*grid)[(y-1)*h+x]);
-        neighbours.push_back((*grid)[(y-1)*h+x+1]);
-        neighbours.push_back((*grid)[(y)*h+x+1]);
-        neighbours.push_back((*grid)[(y+1)*h+x]);
-        neighbours.push_back((*grid)[(y+1)*h+x+1]);
-    }
-    else if(x == (h-1) && y%(v-1) != 0) {
-        neighbours.push_back((*grid)[(y-1)*h+x-1]);
-        neighbours.push_back((*grid)[(y-1)*h+x]);
-        neighbours.push_back((*grid)[(y)*h+x-1]);
-        neighbours.push_back((*grid)[(y+1)*h+x-1]);
-        neighbours.push_back((*grid)[(y+1)*h+x]);
-    }
-    else if(x == (h-1) && y == (v-1)) {
-        neighbours.push_back((*grid)[(y-1)*h+x-1]);
-        neighbours.push_back((*grid)[(y-1)*h+x]);
-        neighbours.push_back((*grid)[(y)*h+x-1]);
-    }
-    else if(x == (h-1) && y == 0) {
-        neighbours.push_back((*grid)[(y)*h+x-1]);
-        neighbours.push_back((*grid)[(y+1)*h+x-1]);
-        neighbours.push_back((*grid)[(y+1)*h+x]);
-    }
-    else if(x == 0 && y == 0) {
-        neighbours.push_back((*grid)[(y)*h+x+1]);
-        neighbours.push_back((*grid)[(y+1)*h+x]);
-        neighbours.push_back((*grid)[(y+1)*h+x+1]);
-    }
-    else if(x == 0 && y == (v-1)) {
-        neighbours.push_back((*grid)[(y-1)*h+x]);
-        neighbours.push_back((*grid)[(y-1)*h+x+1]);
-        neighbours.push_back((*grid)[(y)*h+x+1]);
-    }
+
 
     for(unsigned i=0; i < neighbours.size(); i++) {
         bool alreadyOpened = false;
@@ -157,7 +119,7 @@ bool goToEnd(std::vector<Node*> *grid, std::deque<Node*> &opened, std::vector<No
             hCost += yEndDist*14;
         int fCost = gCost+hCost;
         if(!alreadyClosed &&
-            (neighbours[i]->getFCost() < 0 || neighbours[i]->getFCost() > fCost)) {
+            (neighbours[i]->getFCost() == 0 || neighbours[i]->getFCost() > fCost)) {
             if(neighbours[i]->getStyle() != Node::Start && neighbours[i]->getStyle() != Node::End)
                 neighbours[i]->setFillColor(sf::Color::Green);
             neighbours[i]->setGCost(gCost);
@@ -179,7 +141,7 @@ void displayContainer(T &container, std::vector<sf::Text*> &texts, sf::Font &fon
     for(unsigned i=0; i < container.size(); i++) {
         costs[0] = container[i]->getGCost();
         costs[1] = container[i]->getHCost();
-        costs[2] = costs[0] + costs[1];
+        costs[2] = container[i]->getFCost();
         x = container[i]->getX();
         y = container[i]->getY();
         for(unsigned j=0; j < 3; j++) {
@@ -261,6 +223,7 @@ int main() {
         for(sf::Text* text : texts)
             window.draw(*text);
         window.display();
+        usleep(100000);
     }
 
     for(sf::Text* text : texts)

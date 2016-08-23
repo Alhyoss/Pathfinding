@@ -17,7 +17,7 @@ class Node : public sf::RectangleShape {
             this->y = y;
             setPosition(x*(getSize().x + getOutlineThickness()) + getOrigin().x,
                         y*(getSize().y + getOutlineThickness()) + getOrigin().y);
-            fCost = -1;
+            fCost = 0;
         }
 
         void setFCost(int f) {
