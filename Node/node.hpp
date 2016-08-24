@@ -24,12 +24,11 @@ class Node : public sf::RectangleShape {
             setSize(sf::Vector2f(size-thickness, size-thickness));
             setOutlineColor(sf::Color::Black);
             setOutlineThickness(thickness);
-            setOrigin(10, 10);
             //We set its position
             this->x = x;
             this->y = y;
-            setPosition(x*(getSize().x + getOutlineThickness()) + getOrigin().x,
-                        y*(getSize().y + getOutlineThickness()) + getOrigin().y);
+            setPosition(x*(getSize().x + getOutlineThickness()),
+                        y*(getSize().y + getOutlineThickness()));
             //fCost to zero so that we know it hasn't been checked
             fCost = 0;
         }
