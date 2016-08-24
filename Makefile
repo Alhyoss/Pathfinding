@@ -7,7 +7,7 @@
 #Variables
 GXX = g++
 CXXFLAGS = -std=c++11 -W -Wall -g
-SFMLFLAGS = -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
+SFMLFLAGS = -lsfml-graphics -lsfml-window -lsfml-system
 
 #Creates the executable
 all: pathfinding.o
