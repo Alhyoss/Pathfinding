@@ -25,4 +25,4 @@ clean:
 
 #Removes all files (except the sources) in order to rebuild
 mrproper: clean
-	rm -rf buddysAdventures
+	rm -rf pathfinding
