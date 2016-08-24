@@ -6,6 +6,17 @@
 
 #include "Node/node.hpp"
 
+/*
+ * This function create the grid on which the algorithm has to find its way.
+ * You can change the grid by changing the bidimensionnal array:
+ *      3 is the ending node
+ *      2 is the starting node
+ *      1 is an Obstacle
+ *      Any other number is a walkable node
+ * To change the size of the grid you have to change x and y (and of course fill
+ * the array properly).
+ * You'll also have to change the h and v variables in the goToEnd function.
+ */
 std::vector<Node*> *makeGrid() {
     unsigned x(13), y(12);
     int grid[y][x] = {{3, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -13,7 +24,7 @@ std::vector<Node*> *makeGrid() {
                       {0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0},
                       {0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0},
                       {0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0},
+                      {0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0},
                       {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
                       {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
                       {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
@@ -47,6 +58,12 @@ std::vector<Node*> *makeGrid() {
     return gridVector;
 }
 
+/*
+ * This function will trace the final shortest way found by the algorithm
+ * and change the color of the nodes in Cyan.
+ * It starts at the ending node, and trace back the way by looking at the
+ * parent node of the node it's currently checking.
+ */
 void backTrace(Node* node) {
     if(node->getStyle() != Node::Start && node->getStyle() != Node::End)
         node->setFillColor(sf::Color::Cyan);
@@ -56,23 +73,41 @@ void backTrace(Node* node) {
     }
 }
 
+/*
+ * This is the main function of the program.
+ * Each time it's called, it will check the node which has not yet been checked
+ * with the lowest fCost (define by gCost + hCost, wher gCost is the distance
+ * from the starting node, and hCost is the distance to the ending node).
+ * This node is the first element of the opened deque (which has been sorted).
+ * Each time a node is checked, it is marked as "closed", colored in red and then
+ * the function compute the hCost, gCost and fCost of each of the neighbours nodes.
+ * Those neighbours are colored in green and set as "opened" if they weren't
+ * already, and if they are, the function update it's fCost.
+ */
 bool goToEnd(std::vector<Node*> *grid, std::deque<Node*> &opened, std::vector<Node*> &closed,
             int endX, int endY) {
-    Node* currentNode = opened[0]; //Node with the minimal F Cost
+    //The dimensions of the grid
+    int h(13), v(12);
+    //If there is no possible way to go to the end
     if(opened.empty())
         return true;
+    //We take the node with the lowest fCost and mark it as closed
+    Node* currentNode = opened[0];
     opened.pop_front();
     closed.push_back(currentNode);
+    //If the ending has been found, the program can backtrace
     if(currentNode->getStyle() == Node::End) {
         backTrace(currentNode);
         return true;
     }
+    //Set the color of the node to red
     if(currentNode->getStyle() != Node::Start)
         currentNode->setFillColor(sf::Color::Red);
+    //Those variables are juste to simplify the reading
     int x = currentNode->getX();
     int y = currentNode->getY();
-    int h(13), v(12);
 
+    //We store the neighbours of the current node in the neighbours vector
     std::vector<Node*> neighbours;
     if(y != v-1) {
         neighbours.push_back((*grid)[(y+1)*h+x]);
@@ -93,31 +128,41 @@ bool goToEnd(std::vector<Node*> *grid, std::deque<Node*> &opened, std::vector<No
     if(x != h-1)
         neighbours.push_back((*grid)[(y)*h+x+1]);
 
-
+    bool alreadyOpened, alreadyClosed;
+    int xEndDist, yEndDist, hCost, gCost, fCost;
+    //For each neighbours
     for(unsigned i=0; i < neighbours.size(); i++) {
-        bool alreadyOpened = false;
-        bool alreadyClosed = false;
+        alreadyOpened = false;
+        alreadyClosed = false;
+        //We check if the neighbour has already been opened
         for(unsigned j=0; j < opened.size(); j++) {
             if(neighbours[i] == opened[j])
                 alreadyOpened = true;
         }
+        //We check if the neighbour has already been closed
         for(unsigned j=0; j < closed.size(); j++) {
             if(neighbours[i] == closed[j])
                 alreadyClosed = true;
         }
-        int xEndDist = abs(endX - neighbours[i]->getX());
-        int yEndDist = abs(endY - neighbours[i]->getY());
-        int hCost = 10*abs(xEndDist - yEndDist);
-        int gCost = currentNode->getGCost();
+        //The gCost is the gCost form the parent node plus the distance whit it
+        gCost = currentNode->getGCost();
         if(neighbours[i]->getX() == x || neighbours[i]->getY() == y)
             gCost += 10;
         else
             gCost += 14;
+        //The gCost is simply the distance to the ending node
+        xEndDist = abs(endX - neighbours[i]->getX());
+        yEndDist = abs(endY - neighbours[i]->getY());
+        hCost = 10*abs(xEndDist - yEndDist);
         if(xEndDist < yEndDist)
             hCost += xEndDist*14;
         else
             hCost += yEndDist*14;
-        int fCost = gCost+hCost;
+        //We compute the fCost
+        fCost = gCost+hCost;
+        //If the node has not yet been closed, if its fCost has not yet been set
+        //or if its fCost needs to be updated, we update it and set the parent
+        //of the neighbour as the currentNode
         if(!alreadyClosed &&
             (neighbours[i]->getFCost() == 0 || neighbours[i]->getFCost() > fCost)) {
             if(neighbours[i]->getStyle() != Node::Start && neighbours[i]->getStyle() != Node::End)
@@ -125,14 +170,21 @@ bool goToEnd(std::vector<Node*> *grid, std::deque<Node*> &opened, std::vector<No
             neighbours[i]->setGCost(gCost);
             neighbours[i]->setHCost(hCost);
             neighbours[i]->setFCost(fCost);
-            neighbours[i]->setParent(closed[closed.size()-1]);
+            neighbours[i]->setParent(currentNode);
+            //If the neighbour is not yet opened, we mark it as opened
             if(!alreadyOpened)
                 opened.push_back(neighbours[i]);
         }
     }
+    //The function didn't find the ending node yet
     return false;
 }
 
+/*
+ * This class is just there to add in a vector the texts that will be displayed
+ * The template is necessary so that we can call it with a deque or a vector
+ * (or any other container with the needed function).
+ */
 template<class T>
 void displayContainer(T &container, std::vector<sf::Text*> &texts, sf::Font &font) {
     int costs[3];
@@ -161,6 +213,9 @@ void displayContainer(T &container, std::vector<sf::Text*> &texts, sf::Font &fon
     }
 }
 
+/*
+ * In this function, we delete the vector text of the precedent loop and update it.
+ */
 void displayInfo(std::deque<Node*> &opened, std::vector<Node*> &closed,
                 std::vector<sf::Text*> &texts, sf::Font &font) {
     for(sf::Text* text : texts)
@@ -170,6 +225,12 @@ void displayInfo(std::deque<Node*> &opened, std::vector<Node*> &closed,
     displayContainer<std::vector<Node*>>(closed, texts, font);
 }
 
+/*
+ * This a comparison function used for the sort function of the STL.
+ * It compares two node. The "lower" one is the one with the lowest fCost.
+ * For equal fCost, the lower one is the one with the lower hCost.
+ * For equal hCost, the node are "equal"
+ */
 bool cmp(Node* node1, Node* node2) {
     if(node1->getFCost() < node2->getFCost())
         return true;
@@ -180,11 +241,17 @@ bool cmp(Node* node1, Node* node2) {
     return false;
 }
 
+/*
+ * In the main function we call all the other function and display the results
+ * in a window create with SFML.
+ */
 int main() {
-
+    //We create the grid and initialize the opened and closed container
     std::vector<Node*> *grid = makeGrid();
     std::deque<Node*> opened;
     std::vector <Node*> closed;
+    //We check if there is an ending node, we set the obstacle as closed
+    //and mark the started node as opened
     int xEnd(-1), yEnd;
     for(unsigned i=0; i < grid->size(); i++) {
         if((*grid)[i]->getStyle() == Node::Start)
@@ -196,36 +263,43 @@ int main() {
         else if((*grid)[i]->getStyle() == Node::Obstacle)
             closed.push_back((*grid)[i]);
     }
-
+    //Function to create a window with SFML
     sf::RenderWindow window(sf::VideoMode(650, 600), "A* algorithm");
-
+    //Needed in SFML to display text
     sf::Font font;
     if(!font.loadFromFile("Font/arial.ttf"))
         std::cout << "Unable to load font" << std::endl;
-
+    //This vector will contain the texts that will be displayed
     std::vector<sf::Text*> texts;
+    //This is the main loop, in which we update everything in each loop
     bool finish = false;
     while(window.isOpen()) {
+        //If there is an ending node and the algorithm is not finished, we call
+        //the goToEnd function to find the shortest path to the ending node
         if(xEnd >= 0 && !finish)
             finish = goToEnd(grid, opened, closed, xEnd, yEnd);
-
+        //We sort the opened deque so that it is easy to find the next node to check
         std::sort(opened.begin(), opened.end(), cmp);
+        //We update what need to be displayed
         displayInfo(opened, closed, texts, font);
-
+        //If the user click on the close button, the window is closed at the end
+        //of the loop
         sf::Event event;
         while(window.pollEvent(event)) {
             if(event.type == sf::Event::Closed)
                 window.close();
         }
+        //We display the nodes and the texts
         window.clear();
         for(Node* node : *grid)
             window.draw(*node);
         for(sf::Text* text : texts)
             window.draw(*text);
         window.display();
+        //Just to slow down the loop
         usleep(100000);
     }
-
+    //We desallocate everything
     for(sf::Text* text : texts)
         delete text;
     for(Node* node : *grid)
