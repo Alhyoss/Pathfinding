@@ -4,10 +4,10 @@ It uses the SFML library that you can download here : http://www.sfml-dev.org/do
 
 You can change the grid by changing the bidimensionnal array in the makeGrid function.
 
-        - 0 is a walkable Node
-        - 1 is a Obstacle
-        - 2 is the starting node
-        - 3 is the ending node
+    - 0 is a walkable Node
+    - 1 is a Obstacle
+    - 2 is the starting node
+    - 3 is the ending node
 
 The algorithm used is the A* algorithm, which is the following :
 

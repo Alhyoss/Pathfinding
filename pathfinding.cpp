@@ -19,18 +19,18 @@
  */
 std::vector<Node*> *makeGrid() {
     unsigned x(13), y(12);
-    int grid[y][x] = {{3, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 2}};
+    int grid[y][x] = {{3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
+                      {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0},
+                      {0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0},
+                      {0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0},
+                      {0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0},
+                      {1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
+                      {0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
+                      {0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
+                      {0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0},
+                      {0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0},
+                      {0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
+                      {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 2}};
 
     std::vector<Node*> *gridVector = new std::vector<Node*>();
     for(unsigned i=0; i < y; i++) {
@@ -191,24 +191,28 @@ void displayContainer(T &container, std::vector<sf::Text*> &texts, sf::Font &fon
     int x, y;
     sf::Text* costText;
     for(unsigned i=0; i < container.size(); i++) {
-        costs[0] = container[i]->getGCost();
-        costs[1] = container[i]->getHCost();
-        costs[2] = container[i]->getFCost();
-        x = container[i]->getX();
-        y = container[i]->getY();
-        for(unsigned j=0; j < 3; j++) {
-            costText = new sf::Text();
-            costText->setString(std::to_string(costs[j]));
-            costText->setFont(font);
-            costText->setCharacterSize(15);
-            costText->setColor(sf::Color::Black);
-            if(j==0)
-                costText->setPosition(x*50, y*50);
-            if(j==1)
-                costText->setPosition(x*50+25, y*50);
-            if(j==2)
-                costText->setPosition(x*50+10, y*50+30);
-            texts.push_back(costText);
+        //This condition is either usefull to optimize the program and to prevent
+        //some parasit numbers to appear (the costs of the obstacles).
+        if(container[i]->getStyle() == Node::Path) {
+            x = container[i]->getX();
+            y = container[i]->getY();
+            costs[0] = container[i]->getGCost();
+            costs[1] = container[i]->getHCost();
+            costs[2] = container[i]->getFCost();
+            for(unsigned j=0; j < 3; j++) {
+                costText = new sf::Text();
+                costText->setString(std::to_string(costs[j]));
+                costText->setFont(font);
+                costText->setCharacterSize(15);
+                costText->setColor(sf::Color::Black);
+                if(j==0)
+                    costText->setPosition(x*50, y*50);
+                if(j==1)
+                    costText->setPosition(x*50+25, y*50);
+                if(j==2)
+                    costText->setPosition(x*50+10, y*50+30);
+                texts.push_back(costText);
+            }
         }
     }
 }
@@ -297,7 +301,7 @@ int main() {
             window.draw(*text);
         window.display();
         //Just to slow down the loop
-        usleep(100000);
+        //usleep(100000);
     }
     //We desallocate everything
     for(sf::Text* text : texts)
