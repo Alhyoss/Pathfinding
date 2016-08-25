@@ -6,6 +6,10 @@
 
 #include "Node/node.hpp"
 
+//The dimensions of the grid
+const unsigned row = 12;
+const unsigned column = 12;
+
 /*
  * This function create the grid on which the algorithm has to find its way.
  * You can change the grid by changing the bidimensionnal array:
@@ -13,28 +17,27 @@
  *      2 is the starting node
  *      1 is an Obstacle
  *      Any other number is a walkable node
- * To change the size of the grid you have to change x and y (and of course fill
- * the array properly).
+ * To change the size of the grid you have to change row and column (and of course
+ * fill the array properly).
  * You'll also have to change the h and v variables in the goToEnd function.
  */
 std::vector<Node*> *makeGrid() {
-    unsigned x(13), y(12);
-    int grid[y][x] = {{3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0},
-                      {0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0},
-                      {0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0},
-                      {0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0},
-                      {1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
-                      {0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
-                      {0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
-                      {0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0},
-                      {0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0},
-                      {0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 2}};
+    int grid[row][column] = {{3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}};
 
     std::vector<Node*> *gridVector = new std::vector<Node*>();
-    for(unsigned i=0; i < y; i++) {
-        for(unsigned j=0; j < x; j++) {
+    for(unsigned i=0; i < row; i++) {
+        for(unsigned j=0; j < column; j++) {
             Node *node = new Node(j, i, 50, 2);
             if(grid[i][j] == 1) { //Obstacle node
                 node->setStyle(Node::Obstacle);
@@ -86,8 +89,6 @@ void backTrace(Node* node) {
  */
 bool goToEnd(std::vector<Node*> *grid, std::deque<Node*> &opened, std::vector<Node*> &closed,
             int endX, int endY) {
-    //The dimensions of the grid
-    int h(13), v(12);
     //If there is no possible way to go to the end
     if(opened.empty())
         return true;
@@ -109,24 +110,24 @@ bool goToEnd(std::vector<Node*> *grid, std::deque<Node*> &opened, std::vector<No
 
     //We store the neighbours of the current node in the neighbours vector
     std::vector<Node*> neighbours;
-    if(y != v-1) {
-        neighbours.push_back((*grid)[(y+1)*h+x]);
-        if(x != h-1)
-            neighbours.push_back((*grid)[(y+1)*h+x+1]);
+    if(y != row-1) {
+        neighbours.push_back((*grid)[(y+1)*column+x]);
+        if(x != column-1)
+            neighbours.push_back((*grid)[(y+1)*column+x+1]);
         if(x != 0)
-            neighbours.push_back((*grid)[(y+1)*h+x-1]);
+            neighbours.push_back((*grid)[(y+1)*column+x-1]);
     }
     if(y != 0) {
-        neighbours.push_back((*grid)[(y-1)*h+x]);
-        if(x != h-1)
-            neighbours.push_back((*grid)[(y-1)*h+x+1]);
+        neighbours.push_back((*grid)[(y-1)*column+x]);
+        if(x != column-1)
+            neighbours.push_back((*grid)[(y-1)*column+x+1]);
         if(x != 0)
-            neighbours.push_back((*grid)[(y-1)*h+x-1]);
+            neighbours.push_back((*grid)[(y-1)*column+x-1]);
     }
     if(x != 0)
-        neighbours.push_back((*grid)[(y)*h+x-1]);
-    if(x != h-1)
-        neighbours.push_back((*grid)[(y)*h+x+1]);
+        neighbours.push_back((*grid)[(y)*column+x-1]);
+    if(x != column-1)
+        neighbours.push_back((*grid)[(y)*column+x+1]);
 
     bool alreadyOpened, alreadyClosed;
     int xEndDist, yEndDist, hCost, gCost, fCost;
@@ -150,14 +151,16 @@ bool goToEnd(std::vector<Node*> *grid, std::deque<Node*> &opened, std::vector<No
             gCost += 10;
         else
             gCost += 14;
-        //The gCost is simply the distance to the ending node
+        //The hCost is simply the distance to the ending node
         xEndDist = abs(endX - neighbours[i]->getX());
         yEndDist = abs(endY - neighbours[i]->getY());
-        hCost = 10*abs(xEndDist - yEndDist);
+        //Euclidian distance
+        hCost = int(10*sqrt(xEndDist*xEndDist+yEndDist*yEndDist));
+        /*hCost = 10*abs(xEndDist - yEndDist);
         if(xEndDist < yEndDist)
             hCost += xEndDist*14;
         else
-            hCost += yEndDist*14;
+            hCost += yEndDist*14;*/
         //We compute the fCost
         fCost = gCost+hCost;
         //If the node has not yet been closed, if its fCost has not yet been set
@@ -268,7 +271,7 @@ int main() {
             closed.push_back((*grid)[i]);
     }
     //Function to create a window with SFML
-    sf::RenderWindow window(sf::VideoMode(650, 600), "A* algorithm");
+    sf::RenderWindow window(sf::VideoMode(600, 600), "A* algorithm");
     //Needed in SFML to display text
     sf::Font font;
     if(!font.loadFromFile("Font/arial.ttf"))
