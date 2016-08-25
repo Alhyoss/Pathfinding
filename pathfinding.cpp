@@ -87,8 +87,8 @@ void backTrace(Node* node) {
  * Those neighbours are colored in green and set as "opened" if they weren't
  * already, and if they are, the function update it's fCost.
  */
-bool goToEnd(std::vector<Node*> *grid, std::deque<Node*> &opened, std::vector<Node*> &closed,
-            int endX, int endY) {
+bool goToEnd(const std::vector<Node*> *grid, std::deque<Node*> &opened,
+            std::vector<Node*> &closed, int endX, int endY) {
     //If there is no possible way to go to the end
     if(opened.empty())
         return true;
@@ -105,8 +105,8 @@ bool goToEnd(std::vector<Node*> *grid, std::deque<Node*> &opened, std::vector<No
     if(currentNode->getStyle() != Node::Start)
         currentNode->setFillColor(sf::Color::Red);
     //Those variables are juste to simplify the reading
-    int x = currentNode->getX();
-    int y = currentNode->getY();
+    const int x = currentNode->getX();
+    const int y = currentNode->getY();
 
     //We store the neighbours of the current node in the neighbours vector
     std::vector<Node*> neighbours;
@@ -156,11 +156,6 @@ bool goToEnd(std::vector<Node*> *grid, std::deque<Node*> &opened, std::vector<No
         yEndDist = abs(endY - neighbours[i]->getY());
         //Euclidian distance
         hCost = int(10*sqrt(xEndDist*xEndDist+yEndDist*yEndDist));
-        /*hCost = 10*abs(xEndDist - yEndDist);
-        if(xEndDist < yEndDist)
-            hCost += xEndDist*14;
-        else
-            hCost += yEndDist*14;*/
         //We compute the fCost
         fCost = gCost+hCost;
         //If the node has not yet been closed, if its fCost has not yet been set
@@ -239,13 +234,10 @@ void displayInfo(std::deque<Node*> &opened, std::vector<Node*> &closed,
  * For equal hCost, the node are "equal"
  */
 bool cmp(Node* node1, Node* node2) {
-    if(node1->getFCost() < node2->getFCost())
-        return true;
-    else if(node1->getFCost() > node2->getFCost())
-        return false;
-    else if(node1->getHCost() < node2->getHCost())
-        return true;
-    return false;
+    if(node1->getFCost() != node2->getFCost())
+        return node1->getFCost() < node2->getFCost();
+    else
+        return node1->getHCost() < node2->getHCost();
 }
 
 /*
@@ -254,7 +246,7 @@ bool cmp(Node* node1, Node* node2) {
  */
 int main() {
     //We create the grid and initialize the opened and closed container
-    std::vector<Node*> *grid = makeGrid();
+    const std::vector<Node*> *grid = makeGrid();
     std::deque<Node*> opened;
     std::vector <Node*> closed;
     //We check if there is an ending node, we set the obstacle as closed
