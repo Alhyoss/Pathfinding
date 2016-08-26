@@ -23,15 +23,15 @@ const unsigned column = 12;
  */
 std::vector<Node*> *makeGrid() {
     int grid[row][column] = {{3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
+                             {0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0},
                              {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                              {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}};
 
@@ -154,8 +154,11 @@ bool goToEnd(const std::vector<Node*> *grid, std::deque<Node*> &opened,
         //The hCost is simply the distance to the ending node
         xEndDist = abs(endX - neighbours[i]->getX());
         yEndDist = abs(endY - neighbours[i]->getY());
-        //Euclidian distance
-        hCost = int(10*sqrt(xEndDist*xEndDist+yEndDist*yEndDist));
+        hCost = 10*abs(xEndDist - yEndDist);
+        if(xEndDist < yEndDist)
+            hCost += xEndDist*14;
+        else
+            hCost += yEndDist*14;
         //We compute the fCost
         fCost = gCost+hCost;
         //If the node has not yet been closed, if its fCost has not yet been set
@@ -296,7 +299,7 @@ int main() {
             window.draw(*text);
         window.display();
         //Just to slow down the loop
-        //usleep(100000);
+        usleep(100000);
     }
     //We desallocate everything
     for(sf::Text* text : texts)
